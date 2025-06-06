@@ -58,7 +58,7 @@ for i, filename in enumerate(file_list):
     # Отрисовать область рамкой
     rect = patches.Rectangle((domain_X0, domain_Y0), domain_width, domain_height,
                             linewidth=2, edgecolor='r', facecolor='none', linestyle='--')
-    ax.add_patch(rect)
+    #ax.add_patch(rect)
     
     # Отрисовать тепловую карту
     pcm = ax.imshow(u_grid.T, extent=[domain_X0, domain_X1, domain_Y0, domain_Y1],

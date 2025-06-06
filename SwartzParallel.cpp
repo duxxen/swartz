@@ -21,7 +21,7 @@ int main()
 	//auto iter = SwartzMethod::solve(domains, f, 1000);
 	//std::cout << "Solved [" << domains.size() << "] domains for " << iter << " iterations\n";
 
-	auto iter = SwartzMethod::solve(domains[0], domains[1], f, 50);
+	auto iter = SwartzMethod::solve(domains[0], domains[1], f, 1'000'000);
 	std::cout << "Swartz solved for " << iter << " iterations\n";
 
 	for (int i = 0; i < domains.size(); i++) {

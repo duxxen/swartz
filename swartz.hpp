@@ -53,19 +53,63 @@ inline int SwartzMethod::solve(RectDomain& g1, RectDomain& g2, const func_t& f, 
 	auto len = g1_end - g1_beg;
 	size_t n_points = (len.i + 1) * (len.j + 1);
 
+	auto [n1, m1] = g1.size() - Vec2i(1, 1);
+	auto [n2, m2] = g2.size() - Vec2i(1, 1);
+
 
 	int iter, it;
 	for (iter = 0; iter != max_iter; iter++)
 	{
-		for (int i = g2_beg.i; i <= g2_end.i; i++) {
-			for (int j = g2_beg.j; j <= g2_end.j; j++) {
-				auto g1_ind = g1.toIndices(g1.toLocal(g2.toGlobal(Vec2i(i, j))));
-				g2[i][j] = g1[g1_ind.i][g1_ind.j];
-			}
+		//for (int i = g2_beg.i; i <= g2_end.i; i++) {
+		//	for (int j = g2_beg.j; j <= g2_end.j; j++) {
+		//		auto g1_ind = g1.toIndices(g1.toLocal(g2.toGlobal(Vec2i(i, j))));
+		//		g2[i][j] = g1[g1_ind.i][g1_ind.j];
+		//	}
+		//}
+
+		//it = SSOR::solve(g2, f);
+		////std::cout << "[SWARTZ #" << iter << "]: Inner solve G1 for " << it << " iterations\n";
+
+		//for (int i = g1_beg.i; i <= g1_end.i; i++) {
+		//	for (int j = g1_beg.j; j <= g1_end.j; j++) {
+		//		auto g2_ind = g2.toIndices(g2.toLocal(g1.toGlobal(Vec2i(i, j))));
+
+		//		auto diff = std::abs(g1[i][j] - g2[g2_ind.i][g2_ind.j]);
+		//		max_diff = std::max(max_diff, diff);
+		//		sum_sq += diff * diff;
+
+		//		g1[i][j] = g2[g2_ind.i][g2_ind.j];
+		//	}
+		//}
+
+		//it = SSOR::solve(g1, f);
+		////std::cout << "[SWARTZ #" << iter << "]: Inner solve G2 for " << it << " iterations\n";
+
+		for (int i = g1_beg.i; i <= g1_end.i; i++) {
+			auto g2_ind1 = g2.toIndices(g2.toLocal(g1.toGlobal(Vec2i(i, 0))));
+			auto g2_ind2 = g2.toIndices(g2.toLocal(g1.toGlobal(Vec2i(i, m1))));
+
+			g1[i][0] = g2[g2_ind1.i][g2_ind1.j];
+			g1[i][m1] = g2[g2_ind2.i][g2_ind2.j];
 		}
 
+		for (int j = g1_beg.j; j <= g1_end.j; j++) {
+			auto g2_ind1 = g2.toIndices(g2.toLocal(g1.toGlobal(Vec2i(0, j))));
+			auto g2_ind2 = g2.toIndices(g2.toLocal(g1.toGlobal(Vec2i(n1, j))));
+
+			//g1[0][j] = g2[g2_ind1.i][g2_ind1.j];
+			g1[n1][j] = g2[g2_ind2.i][g2_ind2.j];
+		}
+		it = SSOR::solve(g1, f);
+
+		for (int j = g2_beg.j; j <= g2_end.j; j++) {
+			auto g1_ind1 = g1.toIndices(g1.toLocal(g2.toGlobal(Vec2i(0, j))));
+			auto g1_ind2 = g1.toIndices(g1.toLocal(g2.toGlobal(Vec2i(n2, j))));
+
+			g2[0][j] = g1[g1_ind1.i][g1_ind1.j];
+			//g2[n2][j] = g1[g1_ind2.i][g1_ind2.j];
+		}
 		it = SSOR::solve(g2, f);
-		//std::cout << "[SWARTZ #" << iter << "]: Inner solve G1 for " << it << " iterations\n";
 
 		for (int i = g1_beg.i; i <= g1_end.i; i++) {
 			for (int j = g1_beg.j; j <= g1_end.j; j++) {
@@ -74,20 +118,15 @@ inline int SwartzMethod::solve(RectDomain& g1, RectDomain& g2, const func_t& f, 
 				auto diff = std::abs(g1[i][j] - g2[g2_ind.i][g2_ind.j]);
 				max_diff = std::max(max_diff, diff);
 				sum_sq += diff * diff;
-
-				g1[i][j] = g2[g2_ind.i][g2_ind.j];
 			}
 		}
-
-		it = SSOR::solve(g1, f);
-		//std::cout << "[SWARTZ #" << iter << "]: Inner solve G2 for " << it << " iterations\n";
 		double l2_norm = std::sqrt(sum_sq / n_points);
 
 		// 60, 30 ; 20, 50
 		// 65, 35 ; 25, 55
 		// 70, 40 ; 30, 60
 
-		if (iter % 10 == 0) {
+		if (iter % 10000 == 0) {
 			std::cout << "[SWARTZ #" << iter << "]: Max norm = " << max_diff << ", L2 norm = " << l2_norm << std::endl;
 		}
 		if (max_diff <= EPS)

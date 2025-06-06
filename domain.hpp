@@ -33,6 +33,8 @@ public:
 		n = (x1 - x0) / hx + 1;
 		m = (y1 - y0) / hy + 1;
 		u_grid.resize(n, vect_t(m, 0.0));
+
+		//std::cout << u_grid[0][m + 1];
 	}
 
 	void exportToTXT(const std::string& path);
