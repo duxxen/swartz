@@ -24,6 +24,7 @@ struct Vec2i
 {
 	int32_t i{ 0 };
 	int32_t j{ 0 };
+
 	Vec2i operator+(const Vec2i& oth) { return { i + oth.i, j + oth.j }; }
 	Vec2i operator-(const Vec2i& oth) { return { i - oth.i, j - oth.j }; }
 
