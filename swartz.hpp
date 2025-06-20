@@ -5,7 +5,7 @@ class Swartz
 {
 public:
 	static double EPS;
-	static size_t solve(RectDomain& g1, RectDomain& g2, const func_t& f, size_t max_it = 100);
+	static size_t solve(RectDomain& g1, RectDomain& g2, const func_t& f, size_t max_it = 10000);
 	static size_t solve(std::vector<RectDomain>& domains, const func_t& f, size_t max_it = 10000);
 };
 
@@ -29,6 +29,7 @@ inline size_t Swartz::solve(RectDomain& g1, RectDomain& g2, const func_t& f, siz
 	auto [n1, m1] = g1.size() - Vec2i(1, 1);
 	auto [n2, m2] = g2.size() - Vec2i(1, 1);
 
+	double prev_diff = 0.0;
 	for (size_t iter = 0; iter != max_it; iter++)
 	{
 		for (int i = g1_beg.i; i <= g1_end.i; i++) {
@@ -79,8 +80,9 @@ inline size_t Swartz::solve(RectDomain& g1, RectDomain& g2, const func_t& f, siz
 			}
 		}
 
-		if (max_diff < EPS)
+		if (max_diff < EPS || prev_diff == max_diff)
 			return iter;
+		prev_diff = max_diff;
 	}
 
 	return max_it;
